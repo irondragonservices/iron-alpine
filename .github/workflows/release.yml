@@ -1,40 +1,22 @@
+name: release
+
 on:
   push:
-    branches: [master]
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - LICENSE
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+  security-events: write
 
 jobs:
-
-  dockerpush:
-    runs-on: ubuntu-latest
-    steps:
-    - 
-      uses: actions/checkout@v3.3.0
-      with:
-        fetch-depth: 0
-    - name: Set env
-      id: release
-      run: echo ::set-output name=RELEASE_VERSION::$(git describe --match "[0-9]*.[0-9]*.[0-9]*" --tags $(git rev-list --tags --max-count=1))
-    -
-      id: vars
-      run: |
-        echo ::set-output name=alpine_version::$(grep '^FROM alpine' Dockerfile | cut -d ' ' -f 2 | cut -d ':' -f 2)
-    - 
-      name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@v4
-      with:
-        registry: ghcr.io
-        name: "ghcr.io/irondragonservices/iron-alpine/iron-alpine:${{ steps.vars.outputs.alpine_version }}"
-        username: hazcod
-        password: ${{ secrets.PACKAGE_TOKEN }}
-        tag_semver: true
-    - 
-      name: Create GitHub release
-      uses: actions/create-release@v1.1.4
-      if: steps.vars.outputs.alpine_version != steps.release.outputs.RELEASE_VERSION
-      with:
-          tag_name: ${{ steps.vars.outputs.alpine_version }}
-          release_name: iron-alpine
-          draft: false
-          prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+  ci:
+    uses: irondragonservices/.github/.github/workflows/image-release.yml@main
+    with:
+      version-from: alpine
+    secrets:
+      dragonguard-token: ${{ secrets.DRAGONGUARD_TOKEN }}

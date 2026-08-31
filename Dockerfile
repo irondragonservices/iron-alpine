@@ -14,9 +14,13 @@ ENV APP_USER=app
 # The home directory
 ENV APP_DIR="/$APP_USER"
 # Where persistent data (volume) should be stored
-ENV DATA_DIR "$APP_DIR/data"
+ENV DATA_DIR="$APP_DIR/data"
 # Where configuration should be stored
-ENV CONF_DIR "$APP_DIR/conf"
+ENV CONF_DIR="$APP_DIR/conf"
+# Where an app may write at runtime. The rest of $APP_DIR is read-only after
+# post-install.sh, so anything that needs to write a pid file or a socket needs
+# somewhere to put it.
+ENV TMP_DIR="$APP_DIR/tmp"
 
 # Update base system
 # hadolint ignore=DL3018
@@ -24,9 +28,9 @@ RUN apk add --no-cache ca-certificates
 
 # Add custom user and setup home directory
 RUN adduser -s /bin/true -u 1000 -D -h $APP_DIR $APP_USER \
-  && mkdir "$DATA_DIR" "$CONF_DIR" \
-  && chown -R "$APP_USER" "$APP_DIR" "$CONF_DIR" \
-  && chmod 700 "$APP_DIR" "$DATA_DIR" "$CONF_DIR"
+  && mkdir "$DATA_DIR" "$CONF_DIR" "$TMP_DIR" \
+  && chown -R "$APP_USER" "$APP_DIR" "$CONF_DIR" "$TMP_DIR" \
+  && chmod 700 "$APP_DIR" "$DATA_DIR" "$CONF_DIR" "$TMP_DIR"
 
 # Remove existing crontabs, if any.
 RUN rm -fr /var/spool/cron \
