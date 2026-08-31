@@ -1,4 +1,4 @@
-FROM alpine:3.21.3
+FROM alpine:3.21.7@sha256:48b0309ca019d89d40f670aa1bc06e426dc0931948452e8491e3d65087abc07d
 
 LABEL org.opencontainers.image.source="https://github.com/irondragonservices/iron-alpine"
 
