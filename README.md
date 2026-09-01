@@ -126,6 +126,15 @@ are in [irondragonservices/.github](https://github.com/irondragonservices/.githu
 
 ## Changes from upstream
 
+- **The base packages are now upgraded, not just added to.** The step commented
+  *update base system* only installed `ca-certificates`, so the image shipped
+  whatever the base image tag happened to contain. Distributions patch a
+  package well before they rebuild and republish the base image, so a digest
+  pin — which is what Renovate maintains — pins the *unpatched* set until
+  upstream gets round to a rebuild. `alpine:3.24.1` was carrying openssl
+  3.5.7-r0 with a fixed HIGH against it and 3.5.8-r0 already in the repository.
+  This is also what makes the nightly cache-free rebuild worth running: without
+  it, that job rebuilt the same packages every night and picked up nothing.
 - `post-install.sh` was missing from this repository entirely, so the image
   could not build — `COPY post-install.sh` had nothing to copy.
 - `post-install.sh` now re-removes the dangerous applets and setuid bits that
