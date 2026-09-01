@@ -22,9 +22,21 @@ ENV CONF_DIR="$APP_DIR/conf"
 # somewhere to put it.
 ENV TMP_DIR="$APP_DIR/tmp"
 
-# Update base system
+# Update base system.
+#
+# The upgrade is the point, and it was missing: the step this replaces only
+# installed ca-certificates, so the image shipped whatever packages the base
+# image tag happened to contain. Alpine patches a package well before it
+# rebuilds and republishes the base image, so a digest pin — which is what
+# Renovate maintains — pins the *unpatched* set until upstream gets round to a
+# rebuild. openssl 3.5.7-r0 sat in alpine:3.24.1 with a fixed HIGH against it
+# and 3.5.8-r0 already in the repository.
+#
+# This is also what makes the nightly cache-free rebuild worth running. Without
+# it that job rebuilds the same packages every night and picks up nothing.
 # hadolint ignore=DL3018
-RUN apk add --no-cache ca-certificates
+RUN apk upgrade --no-cache \
+  && apk add --no-cache ca-certificates
 
 # Add custom user and setup home directory
 RUN adduser -s /bin/true -u 1000 -D -h $APP_DIR $APP_USER \
