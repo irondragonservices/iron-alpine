@@ -10,8 +10,6 @@ permissions:
 
 jobs:
   ci:
-    uses: irondragonservices/.github/.github/workflows/image-pr.yml@main
+    uses: irondragonservices/.github/.github/workflows/image-pr.yml@feat/dragonguard-engine
     with:
       version-from: alpine
-    secrets:
-      dragonguard-token: ${{ secrets.DRAGONGUARD_TOKEN }}
